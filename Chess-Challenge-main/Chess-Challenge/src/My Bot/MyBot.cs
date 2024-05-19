@@ -1,27 +1,41 @@
 ﻿using ChessChallenge.API;
 //using ChessChallenge.Chess;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 public class MyBot : IChessBot
 {
-    // Current color (White or Black)
+    // Default Vals: 5.75, 1.25, 1.75, 3.3, 2.0, 2.8, 1.5, 2.0, 1.5, 1.5, 7.0, 2.4, 2.4, 1.5, 2.6, 1.5, 6.8, 2.0, 1.2, 1.25, 1, 1.7, 1, 4, .7, 1.5, .7, 6, 1, 5.5, 1 
+    // Current Best 5.923808283350374, 1.0974914911549076, 1.6543834729626854, 4.182676142501192, 1.9302822250764458, 2.800624234834841, 1.2125409348901475, 1.5901846906092436, 1.817147789862444, 1.7535948431581436, 6.459300858281236, 2.817107663129926, 2.470698952745846, 1.5446836749588866, 1.9335432477664665, 1.4439218198431045, 7.746849211379427, 2.4701976839172843, 1.0568150199943198, 1.3673026628702338, 1.018940768033374, 1.7543287006767836, 1.203839336060401, 4.764630744460872, 0.7118442128050958, 1.4470932079565584, 0.5841295422623322, 4.547803739688125, 0.8689900181104638, 4.244658326014294, 1.0954754437614262
+
+
+    /// Current color (White or Black)
     public bool areWeWhite;
-    public double[] values = new double[] { 5.413136806880654, 2.1062554207659585, 1.7594064333287096, 3.0995119207536392, 1.7565447773116385, 1.5162208881304697, 1.5106999527247158, 2.4920509741604566, 1.7280318656601161, 1.3626138693013292, 7.343030599571313, 1.409198975194804, 2.8196874433754417, 1.5859296690141456, 1.8566970128364382, 1.258812742661132, 7.414893676720045, 2.835985220892348, 1.2597758421952725, 1.8205573306514684, 1.0966818759202406, 1.0274005804804156, 1.1602526161168947, 1.197752028097283, 0.9466290350289219, 0.7224153844744039, 0.922722269512118, 1.2092289038511128, 1.3082461109423293, 1.1898470025927979, 0.9716962806283014 };
-    //public double[] values = new double[] { 5.75, 2.0, 1.5, 3.0, 2.0, 2.0, 1.5, 2.0, 1.5, 1, 7.5, 1.3, 2.4, 2.0, 2.0, 1, 7.5, 2.5, 1.5, 1.5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
-    Move previousMove;
+    // This is the values for the positional aspects of the board evaluation
+    /*public double[] values = new double[] {
+        5.950929878597145, 2.739400151737597, 1.98747707374706, 4.399977900597099, 1.631649301677858, -0.025179585108370928, 0.4481680027011854, 1.8579620286810918, 2.0747748904381673, 1.984459708493875, 5.730400201207056, -0.3912574836231806, 3.336468035998802, 1.8088006607347735, 3.770585880372823, 2.4390908984561745, 6.944565287618426, 4.3452503160318425, 2.7875284987941047, 0.06474563941653666, 2.501889485667594, 0.1994288161853689, 2.733234068006898, 0.714353567883774, -0.7306414638031885, 1.5793199432460763, 1.8695047166692884, -0.2798872730549671, 1.9957046797687714, 2.424961478775342, 1.107777211267805
+    };*/
+    public double[] values = new double[] {
+5.923808283350374, 1.0974914911549076, 1.6543834729626854, 4.182676142501192, 1.9302822250764458, 2.800624234834841, 1.2125409348901475, 1.5901846906092436, 1.817147789862444, 1.7535948431581436, 6.459300858281236, 2.817107663129926, 2.470698952745846, 1.5446836749588866, 1.9335432477664665, 1.4439218198431045, 7.746849211379427, 2.4701976839172843, 1.0568150199943198, 1.3673026628702338, 1.018940768033374, 1.7543287006767836, 1.203839336060401, 4.764630744460872, 0.7118442128050958, 1.4470932079565584, 0.5841295422623322, 4.547803739688125, 0.8689900181104638, 4.244658326014294, 1.0954754437614262
+        };
 
+    //Move previousMove;
+
+    // Transposition Table size
     readonly public static int hashSize = 4_800_000;
-    readonly Dictionary<int, Hashentry> tttable = new Dictionary< int, Hashentry>(hashSize);
+
+    // Transposition Table
+    readonly Dictionary<int, Hashentry> tttable = new Dictionary<int, Hashentry>(hashSize);
+
+    // Sets the time for the bot to move at 1000ms or 1 second
+    public static int timeToMove = 100;
 
     // This stores the values for the point-value table
     //readonly Dictionary<int, double[]> pvtable = new Dictionary<int, double[]>(hashSize*2); // See if this helps
 
-
+    // This tracks the boardstate so that we can figure out each individual contribution
     private double[] boardState = new double[64];
 
 
@@ -55,11 +69,11 @@ public class MyBot : IChessBot
             double num;
             if (!color)
             {
-                num = boardState[63 - (i - ((i) % 8) + (7 - ((i) % 8)))]/100.0;
+                num = boardState[63 - (i - ((i) % 8) + (7 - ((i) % 8)))] / 100.0;
             }
             else
             {
-                num = boardState[(i - ((i) % 8) + (7 - ((i) % 8)))]/100.0;
+                num = boardState[(i - ((i) % 8) + (7 - ((i) % 8)))] / 100.0;
             }
             if (num >= 0.0)
             {
@@ -76,6 +90,17 @@ public class MyBot : IChessBot
         }
     }
 
+    public void randomizeVals()
+    {
+        Random random = new Random();
+        for (int i = 0; i < values.Length; i++)
+        {
+            values[i] += (random.NextDouble() - .5) * (values[i] / 2.5);
+            Console.Write(values[i] + ", ");
+        }
+        Console.WriteLine();
+    }
+
     public static readonly int[] baseBoard =
     {
         0, 0, 0, 0, 0, 0, 0, 0,
@@ -89,7 +114,7 @@ public class MyBot : IChessBot
     };
 
     // Starting depth for bot
-    public int baseDepth = 4;
+    public int baseDepth = 8;
     public bool haveNotRandomized = true;
 
     public Move Think(Board board, Timer timer)
@@ -125,6 +150,7 @@ public class MyBot : IChessBot
         areWeWhite = board.IsWhiteToMove;
 
         Console.WriteLine(tttable.Count);
+        //randomizeVals();
         //tttable.Clear();
 
         Move finalMove = GetMove(moves, board, 0, areWeWhite, timer);
@@ -132,43 +158,43 @@ public class MyBot : IChessBot
         return finalMove;
     }
 
-    // Gets the depth that the it looks at
-    private void getDepth(Timer timer)
-    {
-        baseDepth = 1000 / (timer.MillisecondsElapsedThisTurn+1);// / (timer.MillisecondsElapsedThisTurn + 1);
-        //baseDepth = 0;
-    }
-
     private Move GetMove(Move[] moves, Board board, int depth, bool color, Timer timer)
     {
+        // Sets the default best move to he first move
         Move bestMove = moves[0];
-        moves = preSort(board, board.GetLegalMoves(), color);
-        double bestEval = 0;
 
+        // Presorts the moves
+        moves = preSort(board, board.GetLegalMoves(), color);
+
+        // Sets the current best eval to lowest double val
+        double bestEval = double.MinValue;
+
+        // This is a copy of current board
         Board newBaseBoard = Board.CreateBoardFromFEN(board.GetFenString());
 
+        // Changes moves into dictionary for easier sorting
         Dictionary<Move, double> sortedMoves = moves.ToDictionary(item => item, item => -1000.0);
 
+        // Updates the board state
         updateBoardState(board, board, new Move(), color, true);
 
-        // Reset board
+        // Copies current board to reset it when necessary
         double[] baseValues = new double[64];
         boardState.CopyTo(baseValues, 0);
 
-        //tttable.Clear();
-
         for (int i = 0; i <= baseDepth; i++)
         {
-            Move bestMoveThisGen = bestMove;
-            bestEval = double.MinValue;
+            // Best move at this depth
+            Move bestMoveThisGen = new Move();
+
+            // Best eval last depth
+            //double bestEvalLastGen = bestEval;
+
+            // Starting best eval
+            //bestEval = -999;
 
             foreach (KeyValuePair<Move, double> move in sortedMoves)
             {
-                if (timer.MillisecondsElapsedThisTurn > 500)
-                {
-                    break;
-                }
-
                 // Gets the base boards
                 Move currMove = move.Key;
                 board.MakeMove(currMove);
@@ -179,22 +205,64 @@ public class MyBot : IChessBot
 
                 //Console.WriteLine("Eval: " + newEval);
                 sortedMoves[currMove] = newEval;
+
+                // FIX THIS ISSUE - the timer might cut off new best moves.
                 if (newEval > bestEval)
                 {
                     bestMoveThisGen = currMove;
                     bestEval = newEval;
                 }
 
+                // Resets basevalues
                 baseValues.CopyTo(boardState, 0);
 
+                // Undoes move
                 board.UndoMove(currMove);
 
-                // Makes sure we don't drag on too long
-                //if (timer.MillisecondsElapsedThisTurn > 8000)
-                //{
-                //    break;
-                //}
+                if (timer.MillisecondsElapsedThisTurn > timeToMove)
+                {
+                    break;
+                }
             }
+
+            if (timer.MillisecondsElapsedThisTurn > timeToMove)
+            {
+                /*var sortedDict = from entry in sortedMoves orderby -entry.Value ascending select entry;
+                sortedMoves = sortedDict.ToDictionary(pair => pair.Key, pair => pair.Value);
+                if (bestEval > bestEvalLastGen)
+                {
+                    bestMove = sortedMoves.First().Key;
+                }
+                var sortedDict = from entry in sortedMoves orderby -entry.Value ascending select entry;
+                sortedMoves = sortedDict.ToDictionary(pair => pair.Key, pair => pair.Value);*/
+
+                // Be careful with this, sets best move and curr best move to SAME OBJECT
+                if (bestMoveThisGen != new Move())
+                {
+                    bestMove = bestMoveThisGen;
+                }
+                break;
+            }
+            else
+            {
+                var sortedDict = from entry in sortedMoves orderby -entry.Value ascending select entry;
+                sortedMoves = sortedDict.ToDictionary(pair => pair.Key, pair => pair.Value);
+
+                bestMove = sortedMoves.First().Key;
+            }
+
+
+            /*bestMove = bestMoveThisGen;
+
+            var sortedDict = from entry in sortedMoves orderby -entry.Value ascending select entry;
+            sortedMoves = sortedDict.ToDictionary(pair => pair.Key, pair => pair.Value);
+
+            if (timer.MillisecondsElapsedThisTurn > timeToMove)
+            {
+                break;
+            }*/
+
+
             //getDepth(timer);
             //if (timer.MillisecondsElapsedThisTurn < 8000)
             //{
@@ -203,23 +271,14 @@ public class MyBot : IChessBot
             //{
             //    break;
             //}
-            bestMove = bestMoveThisGen;
 
-            var sortedDict = from entry in sortedMoves orderby -entry.Value ascending select entry;
-            sortedMoves = sortedDict.ToDictionary(pair => pair.Key, pair => pair.Value);
-
-            Console.WriteLine("Depth: " + i);
-            Console.WriteLine("Best Eval: " + bestEval/100.0);
-
-            if (timer.MillisecondsElapsedThisTurn > 500)
-            {
-                break;
-            }
+            //Console.WriteLine("Depth: " + i);
+            //Console.WriteLine("Best Eval: " + bestEval/100.0);
         }
         //var sortedDict = from entry in sortedMoves orderby entry.Value ascending select entry;
         //sortedMoves = sortedDict.ToDictionary(pair => pair.Key, pair => pair.Value);
 
-        Console.WriteLine("Best Eval: " + bestEval/100.0);
+        Console.WriteLine("Best Eval: " + bestEval / 100.0 + " - BaseBot\n");
         return bestMove;
     }
 
@@ -271,15 +330,18 @@ public class MyBot : IChessBot
 
                 // This is for copying legacy boardstate values
                 tttable[entryVal].pieceBoardValues.CopyTo(boardState, 0);
-            } else if ((lookup.ancient - timer.MillisecondsRemaining) > 5000)
+            }
+            else if ((lookup.ancient - timer.MillisecondsRemaining) > 5000)
             {
                 tttable.Remove(entryVal);
                 updateBoardState(board, baseBoard, move, color);
-            } else
+            }
+            else
             {
                 updateBoardState(board, baseBoard, move, color);
             }
-        } else
+        }
+        else
         {
             updateBoardState(board, baseBoard, move, color);
         }
@@ -313,7 +375,7 @@ public class MyBot : IChessBot
         {
             //int keepGoing = 0;
             board.MakeMove(moves[i]);
-            if ((moves[i].IsCapture || board.IsInCheck()) && maxq < 9)
+            if ((moves[i].IsCapture || board.IsInCheck()) && maxq < 15)
             {
                 //board.MakeMove(moves[i]);
                 alpha = Math.Max(alpha, -qSearch(-beta, -alpha, board, newBaseBoard, !color, maxq + 1, timer, moves[i]));
@@ -341,7 +403,7 @@ public class MyBot : IChessBot
             //board.UndoMove(moves[i]);
 
             // Reset the values
-            baseValues.CopyTo(boardState,0);
+            baseValues.CopyTo(boardState, 0);
 
             if (beta <= alpha)
             {
@@ -379,27 +441,28 @@ public class MyBot : IChessBot
         //double[] defVals = new double[64];
         //boardState.CopyTo(defVals, 0);
 
-        if ((depth > baseDepth) || extraDepth > 3)
-        {
-            //defVals.CopyTo(boardState, 0);
-            //board = Board.CreateBoardFromFEN(baseBoard.GetFenString());
-            return qSearch(alpha, beta, board, baseBoard, color, depth + extraDepth, timer, move); // Check this later
-            //return getBoardVal(board, color);
-        }
-
-        //printBoardValues(areWeWhite);
-        double aOrig = alpha;
-
         // Hopefully this will reduce blundering draws in completely winning positions
         if (board.IsDraw())
         {
             //defVals.CopyTo(boardState, 0);
             return 0;
-        } else if (board.IsInCheckmate())
+        }
+        else if (board.IsInCheckmate())
         {
             //defVals.CopyTo(boardState, 0);
             return -100000 - (baseDepth - depth);
         }
+
+        if ((depth >= baseDepth) || extraDepth > 3)
+        {
+            //defVals.CopyTo(boardState, 0);
+            //board = Board.CreateBoardFromFEN(baseBoard.GetFenString());
+            return qSearch(alpha, beta, board, baseBoard, color, depth + extraDepth, timer, move); // Check this later
+                                                                                                   //return getBoardVal(board, color);
+        }
+
+        //printBoardValues(areWeWhite);
+        double aOrig = alpha;
 
         //tttable.Clear();
 
@@ -408,7 +471,7 @@ public class MyBot : IChessBot
         if (tttable.ContainsKey(entryVal) && tttable[entryVal].qSearch == false)
         {
             Hashentry lookup = tttable[entryVal];
-            if (lookup.depth >= (baseDepth - depth) && (board.ZobristKey == lookup.zobrist) && (lookup.ancient - timer.MillisecondsRemaining) < 5000) 
+            if (lookup.depth >= (baseDepth - depth) && (board.ZobristKey == lookup.zobrist) && (lookup.ancient - timer.MillisecondsRemaining) < 5000)
             {
                 if (lookup.flag == 0)
                 {
@@ -430,15 +493,18 @@ public class MyBot : IChessBot
                     return lookup.eval;
                 }
                 tttable[entryVal].pieceBoardValues.CopyTo(boardState, 0);
-            } else if ((lookup.ancient - timer.MillisecondsRemaining) > 5000)
+            }
+            else if ((lookup.ancient - timer.MillisecondsRemaining) > 5000)
             {
                 tttable.Remove(entryVal);
                 updateBoardState(board, baseBoard, move, color);
-            } else
+            }
+            else
             {
                 updateBoardState(board, baseBoard, move, color);
             }
-        } else
+        }
+        else
         {
             updateBoardState(board, baseBoard, move, color);
         }
@@ -455,7 +521,7 @@ public class MyBot : IChessBot
         double[] baseValues = new double[64];
         boardState.CopyTo(baseValues, 0);
 
-        
+
         // Negamax 
         for (int i = 0; i < moves.Length; i++)
         {
@@ -491,7 +557,7 @@ public class MyBot : IChessBot
             board.UndoMove(moves[i]);
 
             // Reset the values
-            baseValues.CopyTo(boardState,0);
+            baseValues.CopyTo(boardState, 0);
 
             alpha = Math.Max(alpha, eval);
 
@@ -596,7 +662,8 @@ public class MyBot : IChessBot
         ulong bqueens = board.GetPieceBitboard(PieceType.Queen, false);
         ulong bking = board.GetPieceBitboard(PieceType.King, false);
 
-        for (int i = 0; i < 64; i++) {
+        for (int i = 0; i < 64; i++)
+        {
 
             if (((updates >> i) & 0x1) == 1 || doAll)
             {
@@ -705,7 +772,7 @@ public class MyBot : IChessBot
         ulong numPiecesDefendingUs = 0;
 
         // Current Square in bitboard form
-        ulong currSquare = 0000000000000000000000000000000000000000000000000000000000000000 | ((ulong) 1 << square.Index);
+        ulong currSquare = 0000000000000000000000000000000000000000000000000000000000000000 | ((ulong)1 << square.Index);
         //BitboardHelper.VisualizeBitboard(currSquare);
 
         foreach (PieceList pieceList in board.GetAllPieceLists())
@@ -744,14 +811,15 @@ public class MyBot : IChessBot
         //double isOurTurn = (color == board.IsWhiteToMove) ? 1 : 0;
         double piecesLeft = (double)BitboardHelper.GetNumberOfSetBits(allPieces); // Gets how many pieces left
         double rankInput = (color) ? (double)square.Rank : (7.0 - (double)square.Rank);
-        double distanceFromCenter = Math.Abs((3.5 - (double) square.File));
+        double distanceFromCenter = Math.Abs((3.5 - (double)square.File));
         //double opponentKingRankInput = (color) ? (double)board.GetKingSquare(!color).Rank : (7.0 - (double)board.GetKingSquare(!color).Rank);
         //double opponentKingFileInput = (double)board.GetKingSquare(!color).File;
         double mobilityInput;
         if (pieceType == PieceType.King)
         {
             mobilityInput = (double)BitboardHelper.GetNumberOfSetBits(BitboardHelper.GetPieceAttacks(PieceType.Queen, square, ourPieces, color));
-        } else
+        }
+        else
         {
             mobilityInput = (double)BitboardHelper.GetNumberOfSetBits(BitboardHelper.GetPieceAttacks(pieceType, square, ourPieces, color));
         }
@@ -764,7 +832,7 @@ public class MyBot : IChessBot
         {
             case (PieceType.Pawn):
                 pieceValue += 100; // Material
-                pieceValue += rankInput/2 * (values[0] / distanceFromCenter*2);
+                pieceValue += rankInput / 2 * (values[0] / distanceFromCenter * 2);
                 pieceValue -= Math.Pow(numPiecesAttackingUs, 3) / values[1];
                 pieceValue += numPiecesAttacking * values[2];
                 pieceValue += numPiecesDefending * values[3];
@@ -799,25 +867,24 @@ public class MyBot : IChessBot
                 break;
             case (PieceType.Queen):
                 pieceValue += 900; // Material
-                pieceValue += ((mobilityInput) * (1-((piecesLeft/32)+.5))) * values[23];
+                pieceValue += ((mobilityInput) * ((values[23] / piecesLeft) / 3));
                 pieceValue += numPiecesAttacking * values[24];
                 pieceValue -= Math.Pow(numPiecesAttackingUs, 2) * values[25];
                 pieceValue += Math.Pow(numPiecesDefendingUs, 2) * values[26];
-                pieceValue += numPiecesDefendingUs * values[27];
                 break;
             case (PieceType.King):
                 pieceValue += 1000; // Material
-                pieceValue -= numPiecesDefending*3;
-                pieceValue -= Math.Pow(mobilityInput, 1.23) * (piecesLeft / 32) * values[28];
-                pieceValue -= Math.Pow(numPiecesAttackingUs, 4) * values[29];
+                pieceValue -= numPiecesDefending * 3;
+                pieceValue -= Math.Pow(mobilityInput, 1.23) * ((values[27] / piecesLeft) / 3);
+                pieceValue -= Math.Pow(numPiecesAttackingUs, 4) * values[28];
                 if (piecesLeft > 20)
                 {
                     if (distanceFromCenter < 3.5)
                     {
-                        pieceValue += distanceFromCenter * 5.5;
+                        pieceValue += distanceFromCenter * values[29];
                     }
                     pieceValue -= (rankInput == 3.5) ? rankInput : rankInput * values[30];
-                } 
+                }
                 break;
         }
         if (pieceValue < 0)
