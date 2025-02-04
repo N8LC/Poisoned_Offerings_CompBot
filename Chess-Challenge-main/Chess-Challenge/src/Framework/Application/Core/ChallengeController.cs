@@ -18,8 +18,8 @@ namespace ChessChallenge.Application
         public enum PlayerType
         {
             Human,
-            MyBot,
-            EvilBot
+            POv3_2,
+            POv1
         }
 
         // Game state
@@ -73,7 +73,7 @@ namespace ChessChallenge.Application
             botMatchStartFens = FileHelper.ReadResourceFile("Fens.txt").Split('\n').Where(fen => fen.Length > 0).ToArray();
             botTaskWaitHandle = new AutoResetEvent(false);
 
-            StartNewGame(PlayerType.Human, PlayerType.MyBot);
+            StartNewGame(PlayerType.Human, PlayerType.POv3_2);
         }
 
         public void StartNewGame(PlayerType whiteType, PlayerType blackType)
@@ -208,8 +208,8 @@ namespace ChessChallenge.Application
         {
             return type switch
             {
-                PlayerType.MyBot => new ChessPlayer(new MyBot(), type, GameDurationMilliseconds),
-                PlayerType.EvilBot => new ChessPlayer(new EvilBot(), type, GameDurationMilliseconds),
+                PlayerType.POv3_2 => new ChessPlayer(new MyBot(), type, GameDurationMilliseconds),
+                PlayerType.POv1 => new ChessPlayer(new EvilBot(), type, GameDurationMilliseconds),
                 _ => new ChessPlayer(new HumanPlayer(boardUI), type)
             };
         }

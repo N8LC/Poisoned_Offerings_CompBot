@@ -18,9 +18,13 @@ public class MyBot : IChessBot
     /*public double[] values = new double[] {
         5.950929878597145, 2.739400151737597, 1.98747707374706, 4.399977900597099, 1.631649301677858, -0.025179585108370928, 0.4481680027011854, 1.8579620286810918, 2.0747748904381673, 1.984459708493875, 5.730400201207056, -0.3912574836231806, 3.336468035998802, 1.8088006607347735, 3.770585880372823, 2.4390908984561745, 6.944565287618426, 4.3452503160318425, 2.7875284987941047, 0.06474563941653666, 2.501889485667594, 0.1994288161853689, 2.733234068006898, 0.714353567883774, -0.7306414638031885, 1.5793199432460763, 1.8695047166692884, -0.2798872730549671, 1.9957046797687714, 2.424961478775342, 1.107777211267805
     };*/
+
+    // 7.923753840213653, 1.421760649144808, 1.3163997844531747, 3.7813710547641546, 1.9030773706097361, 2.5508966507486925, 1.018711756048585, 1.8462012063745097, 1.4149944716062413, 1.1203337601054049, 6.006852931932329, 2.2348738817484364, 1.8174366008921892, 1.183960703093651, 1.6701117023362515, 1.7357554805865707, 6.876200964635624, 2.7541634341823977, 1.2157851899348517, 1.3064366818361337, 0.824412407252106, 1.0523171143979184, 1.2315934677537952, 5.7925470522403915, 0.594375687023307, 1.2264398578465254, 0.6891618837702698, 4.102128063084177, 1.0220231398441044, 6.02986284705919, 1.2609000063397782
+
+
     public double[] values = new double[] {
-6.985276059254072, 1.440756868262853, 1.471602756206613, 4.153128860307227, 2.165839608338816, 2.7372438226703197, 1.140516525109266, 1.9471640489481348, 1.5572233146919552, 1.2828453992377244, 6.2818263748824466, 2.3916115454174816, 1.880142719849608, 1.318462133242958, 2.0232949833633787, 1.6299038299842343, 7.431541562037035, 2.553831521972569, 1.2347643785066515, 1.4561321222031642, 0.9295644866675574, 1.1879130668784457, 1.171958788617485, 5.97289526154109, 0.690253343857657, 1.102412761034281, 0.6948504618377056, 4.898673419968283, 1.0006381114773057, 6.494777351054253, 1.2228624123942722
-        };
+ 6.2346403184429935, 1.2935692497523388, 1.6170090090995846, 4.107261189619279, 2.3528710374380504, 2.681288314152552, 1.1771408258856277, 1.7778025250058735, 1.8404471751643239, 1.5122208808734618, 5.652493056318367, 2.8710728046656913, 2.2410907939664537, 1.9488710643157303, 2.091394671191594, 1.2549069109882427, 6.849996473372929, 3.1195891484783855, 1.1060085265131754, 1.3541286569994082, 1.1286598820853428, 1.5557265598379992, 1.459888281934701, 4.746786186293157, 0.7963945431939259, 1.4462402820765092, 0.7720269292591588, 4.252778592267265, 0.838723416614591, 5.165945994167033, 1.263080142016497
+    };
 
     //Move previousMove;
 
@@ -31,7 +35,7 @@ public class MyBot : IChessBot
     readonly Dictionary<int, Hashentry> tttable = new Dictionary<int, Hashentry>(hashSize);
 
     // Sets the time for the bot to move at 1000ms or 1 second
-    public static int timeToMove = 1300;
+    public static int timeToMove = 3000;
 
     // This stores the values for the point-value table
     //readonly Dictionary<int, double[]> pvtable = new Dictionary<int, double[]>(hashSize*2); // See if this helps
@@ -68,7 +72,7 @@ public class MyBot : IChessBot
         for (int i = 0; i < 64; i++)
         {
             double num;
-            if (!color)
+            if (color)
             {
                 num = boardState[63 - (i - ((i) % 8) + (7 - ((i) % 8)))] / 100.0;
             }
@@ -143,7 +147,7 @@ public class MyBot : IChessBot
         //tttable.Clear();
 
         Move finalMove = GetMove(moves, board, 0, areWeWhite, timer);
-        //printBoardValues(areWeWhite);
+        printBoardValues(areWeWhite);
         return finalMove;
     }
 
@@ -239,30 +243,6 @@ public class MyBot : IChessBot
 
                 bestMove = sortedMoves.First().Key;
             }
-
-
-            /*bestMove = bestMoveThisGen;
-
-            var sortedDict = from entry in sortedMoves orderby -entry.Value ascending select entry;
-            sortedMoves = sortedDict.ToDictionary(pair => pair.Key, pair => pair.Value);
-
-            if (timer.MillisecondsElapsedThisTurn > timeToMove)
-            {
-                break;
-            }*/
-
-
-            //getDepth(timer);
-            //if (timer.MillisecondsElapsedThisTurn < 8000)
-            //{
-            //    bestMove = bestMoveThisGen;
-            //} else
-            //{
-            //    break;
-            //}
-
-            //Console.WriteLine("Depth: " + i);
-            //Console.WriteLine("Best Eval: " + bestEval/100.0);
         }
         //var sortedDict = from entry in sortedMoves orderby entry.Value ascending select entry;
         //sortedMoves = sortedDict.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -275,11 +255,6 @@ public class MyBot : IChessBot
     // q-search
     private double qSearch(double alpha, double beta, Board board, Board baseBoard, bool color, int maxq, Timer timer, Move move)
     {
-        // Def Vals
-        //double[] defVals = new double[64];
-        //boardState.CopyTo(defVals, 0);
-
-
         // Hopefully this will reduce blundering draws in completely winning positions
         if (board.IsDraw())
         {
@@ -292,7 +267,7 @@ public class MyBot : IChessBot
 
         double aOrig = alpha;
 
-        // Check the Trasposition table before we move on to calculations
+        // Check the Transposition table before we move on to calculations
         int entryVal = Convert.ToInt32(board.ZobristKey % Convert.ToUInt64(hashSize));
         if (tttable.ContainsKey(entryVal) && tttable[entryVal].qSearch == true)
         {
@@ -364,7 +339,7 @@ public class MyBot : IChessBot
         {
             //int keepGoing = 0;
             board.MakeMove(moves[i]);
-            if ((moves[i].IsCapture || board.IsInCheck()) && maxq < 15)
+            if ((moves[i].IsCapture || board.IsInCheck()) && maxq < 23)
             {
                 //board.MakeMove(moves[i]);
                 alpha = Math.Max(alpha, -qSearch(-beta, -alpha, board, newBaseBoard, !color, maxq + 1, timer, moves[i]));
@@ -396,6 +371,7 @@ public class MyBot : IChessBot
 
             if (beta <= alpha)
             {
+                //tttable[entryVal] = new Hashentry(board.ZobristKey, maxq, 2, alpha, timer.MillisecondsRemaining, true);
                 break;
             }
         }
@@ -426,9 +402,6 @@ public class MyBot : IChessBot
     // Minimax algorithm with alpha beta pruning
     private double getDeepEval(Board board, Board baseBoard, int depth, double alpha, double beta, bool color, Timer timer, int extraDepth, Move move)
     {
-        // Def Vals
-        //double[] defVals = new double[64];
-        //boardState.CopyTo(defVals, 0);
 
         // Hopefully this will reduce blundering draws in completely winning positions
         if (board.IsDraw())
@@ -442,18 +415,13 @@ public class MyBot : IChessBot
             return -100000 - (baseDepth - depth);
         }
 
-        if ((depth >= baseDepth) || extraDepth > 3)
+        if ((depth >= baseDepth) || extraDepth > 6)
         {
-            //defVals.CopyTo(boardState, 0);
-            //board = Board.CreateBoardFromFEN(baseBoard.GetFenString());
-            return qSearch(alpha, beta, board, baseBoard, color, depth + extraDepth, timer, move); // Check this later
-                                                                                                   //return getBoardVal(board, color);
+            return qSearch(alpha, beta, board, baseBoard, color, depth + extraDepth, timer, move); 
         }
 
         //printBoardValues(areWeWhite);
         double aOrig = alpha;
-
-        //tttable.Clear();
 
         // Check the Transposition table before we move on to calculations
         int entryVal = Convert.ToInt32(board.ZobristKey % Convert.ToUInt64(hashSize));
@@ -501,7 +469,6 @@ public class MyBot : IChessBot
         double eval;
 
         Move[] moves = preSort(board, board.GetLegalMoves(), color);
-        //Move[] moves = board.GetLegalMoves();
 
         // Creates the baseboard
         Board newBaseBoard = Board.CreateBoardFromFEN(board.GetFenString());
@@ -514,21 +481,10 @@ public class MyBot : IChessBot
         // Negamax 
         for (int i = 0; i < moves.Length; i++)
         {
-            int keepGoing = 0;
+
+            int keepGoing = board.IsInCheck() ? 1 : 0;
+
             board.MakeMove(moves[i]);
-            //ulong enemyBit;
-            //if (color)
-            //{
-            //    enemyBit = board.BlackPiecesBitboard;
-            //} else
-            //{
-            //    enemyBit = board.WhitePiecesBitboard;
-            //}
-            if (board.IsInCheck())// || moves[i].IsPromotion || (moves[i].MovePieceType == PieceType.Pawn && BitboardHelper.GetNumberOfSetBits(board.AllPiecesBitboard) < 12)) //|| (moves[i].MovePieceType == PieceType.King && 6 > BitboardHelper.GetNumberOfSetBits(BitboardHelper.GetPieceAttacks(PieceType.Queen, new Square(i), enemyBit, color))))
-            {
-                keepGoing = 1;
-            }
-            //Console.WriteLine("Eval - " + bestEval + ", White? " + color);
             if (i == 0)
             {
                 eval = -getDeepEval(board, newBaseBoard, depth + 1 - keepGoing, -beta, -alpha, !color, timer, extraDepth + keepGoing, moves[i]);
@@ -553,8 +509,6 @@ public class MyBot : IChessBot
             if (alpha >= beta)
             {
                 // Move was too good
-                //tttable[entryVal] = new Hashentry(board.ZobristKey, (baseDepth - depth), 1, alpha, timer.MillisecondsRemaining, false);
-                //baseValues.CopyTo(tttable[entryVal].pieceBoardValues, 0);
                 break;
             }
         }
@@ -579,7 +533,7 @@ public class MyBot : IChessBot
             // Copies the Values to The Hash
             baseValues.CopyTo(tttable[entryVal].pieceBoardValues, 0);
         }
-        //defVals.CopyTo(boardState, 0);
+
         return alpha;
     }
 
@@ -593,17 +547,9 @@ public class MyBot : IChessBot
     // Gets a rough move value for the presort
     private double moveVal(Board board, Move move, bool color)
     {
-        double val = 0.0;
 
         // Orderby sorts negative so we use - to indicate a better move
-
-        if (move.IsCapture || move.IsPromotion)
-        {
-            //val -= (getPieceValue(move.MovePieceType, move.TargetSquare, color) - getPieceValue(move.CapturePieceType, move.TargetSquare, color)) + 90;
-            val -= 9.0;
-        }
-
-        //val -= getBoardVal(board, ogColor);
+        int val = (move.IsCapture || move.IsPromotion) ? -1 : 0;
 
         return val;
     }
@@ -611,14 +557,8 @@ public class MyBot : IChessBot
     // This is the evaluation function for this bot
     private double getBoardVal(bool color)
     {
-        //updateBoardState(board);
-
         // Positional values are calculated within material value function
-        if (color != true)
-        {
-            return -boardState.Sum();
-        }
-        return boardState.Sum();
+        return !color ? -boardState.Sum() : boardState.Sum();
     }
 
     private void updateBoardState(Board board, Board baseBoard, Move move, bool color, bool doAll = false)
@@ -863,22 +803,28 @@ public class MyBot : IChessBot
                 break;
             case (PieceType.King):
                 pieceValue += 1000; // Material
-                pieceValue -= numPiecesDefending * 3;
                 pieceValue -= Math.Pow(mobilityInput, 1.23) * ((values[27] / piecesLeft) / 3);
                 pieceValue -= Math.Pow(numPiecesAttackingUs, 4) * values[28];
                 if (piecesLeft > 20)
                 {
-                    if (distanceFromCenter < 3.5)
+                    //pieceValue -= numPiecesDefending * 2;
+                    if (distanceFromCenter < 3)
                     {
                         pieceValue += distanceFromCenter * values[29];
                     }
-                    pieceValue -= (rankInput == 3.5) ? rankInput : rankInput * values[30];
+                    pieceValue -= rankInput * values[30];
                 }
+
+                if (piecesLeft < 8)
+                {
+                    pieceValue += numPiecesDefending * 1.3;
+                }
+
                 break;
         }
         if (pieceValue < 0)
         {
-            pieceValue = 0;
+            pieceValue = 0.01;
         }
         return pieceValue;
     }

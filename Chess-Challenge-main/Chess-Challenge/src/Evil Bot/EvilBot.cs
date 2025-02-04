@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace ChessChallenge.Example
+/*namespace ChessChallenge.Example
 {
     public class EvilBot : IChessBot
     {
@@ -13,11 +13,11 @@ namespace ChessChallenge.Example
         public bool areWeWhite;
 
         // This is the values for the positional aspects of the boarsd evaluation
-        /*public double[] values = new double[] {
+        *//*public double[] values = new double[] {
             5.950929878597145, 2.739400151737597, 1.98747707374706, 4.399977900597099, 1.631649301677858, -0.025179585108370928, 0.4481680027011854, 1.8579620286810918, 2.0747748904381673, 1.984459708493875, 5.730400201207056, -0.3912574836231806, 3.336468035998802, 1.8088006607347735, 3.770585880372823, 2.4390908984561745, 6.944565287618426, 4.3452503160318425, 2.7875284987941047, 0.06474563941653666, 2.501889485667594, 0.1994288161853689, 2.733234068006898, 0.714353567883774, -0.7306414638031885, 1.5793199432460763, 1.8695047166692884, -0.2798872730549671, 1.9957046797687714, 2.424961478775342, 1.107777211267805
-        };*/
+        };*//*
         public double[] values = new double[] {
-6.985276059254072, 1.440756868262853, 1.471602756206613, 4.153128860307227, 2.165839608338816, 2.7372438226703197, 1.140516525109266, 1.9471640489481348, 1.5572233146919552, 1.2828453992377244, 6.2818263748824466, 2.3916115454174816, 1.880142719849608, 1.318462133242958, 2.0232949833633787, 1.6299038299842343, 7.431541562037035, 2.553831521972569, 1.2347643785066515, 1.4561321222031642, 0.9295644866675574, 1.1879130668784457, 1.171958788617485, 5.97289526154109, 0.690253343857657, 1.102412761034281, 0.6948504618377056, 4.898673419968283, 1.0006381114773057, 6.494777351054253, 1.2228624123942722
+8.10776434243709, 1.4633198683228157, 1.4232925054497574, 3.662823811740935, 2.084274095990324, 2.5681181966265756, 0.9133371326311286, 1.7381780309823711, 1.46655554830523, 1.0429100621880183, 5.786601173411328, 2.414040755179712, 1.7632213249661695, 1.2507610305909298, 1.7084354818452991, 1.7398900114445646, 7.437714000759174, 2.5265449468208168, 1.2644643586071511, 1.4515755696745765, 0.8060429474698334, 0.9643411947766141, 1.278614927895307, 6.39693606586043, 0.5563281797385269, 1.2994841794009608, 0.686669262700154, 4.045340226626998, 1.1314465857138607, 5.77529121435867, 1.2919669016908526
         };
 
         //Move previousMove;
@@ -94,7 +94,7 @@ namespace ChessChallenge.Example
             Random random = new Random();
             for (int i = 0; i < values.Length; i++)
             {
-                values[i] += (random.NextDouble() - .5) * (values[i] / 3.2);
+                values[i] += (random.NextDouble() - .5) * (values[i] / 4.5);
                 Console.Write(values[i] + ", ");
             }
             Console.WriteLine();
@@ -226,14 +226,14 @@ namespace ChessChallenge.Example
 
                 if (timer.MillisecondsElapsedThisTurn > timeToMove)
                 {
-                    /*var sortedDict = from entry in sortedMoves orderby -entry.Value ascending select entry;
+                    *//*var sortedDict = from entry in sortedMoves orderby -entry.Value ascending select entry;
                     sortedMoves = sortedDict.ToDictionary(pair => pair.Key, pair => pair.Value);
                     if (bestEval > bestEvalLastGen)
                     {
                         bestMove = sortedMoves.First().Key;
                     }
                     var sortedDict = from entry in sortedMoves orderby -entry.Value ascending select entry;
-                    sortedMoves = sortedDict.ToDictionary(pair => pair.Key, pair => pair.Value);*/
+                    sortedMoves = sortedDict.ToDictionary(pair => pair.Key, pair => pair.Value);*//*
 
                     // Be careful with this, sets best move and curr best move to SAME OBJECT
                     if (bestMoveThisGen != new Move())
@@ -251,7 +251,7 @@ namespace ChessChallenge.Example
                 }
 
 
-                /*bestMove = bestMoveThisGen;
+                *//*bestMove = bestMoveThisGen;
 
                 var sortedDict = from entry in sortedMoves orderby -entry.Value ascending select entry;
                 sortedMoves = sortedDict.ToDictionary(pair => pair.Key, pair => pair.Value);
@@ -259,7 +259,7 @@ namespace ChessChallenge.Example
                 if (timer.MillisecondsElapsedThisTurn > timeToMove)
                 {
                     break;
-                }*/
+                }*//*
 
 
                 //getDepth(timer);
@@ -374,7 +374,7 @@ namespace ChessChallenge.Example
             {
                 //int keepGoing = 0;
                 board.MakeMove(moves[i]);
-                if ((moves[i].IsCapture || board.IsInCheck()) && maxq < 15)
+                if ((moves[i].IsCapture || board.IsInCheck()) && maxq < 23)
                 {
                     //board.MakeMove(moves[i]);
                     alpha = Math.Max(alpha, -qSearch(-beta, -alpha, board, newBaseBoard, !color, maxq + 1, timer, moves[i]));
@@ -452,7 +452,7 @@ namespace ChessChallenge.Example
                 return -100000 - (baseDepth - depth);
             }
 
-            if ((depth >= baseDepth) || extraDepth > 3)
+            if ((depth >= baseDepth) || extraDepth > 9)
             {
                 //defVals.CopyTo(boardState, 0);
                 //board = Board.CreateBoardFromFEN(baseBoard.GetFenString());
@@ -893,9 +893,9 @@ namespace ChessChallenge.Example
             return pieceValue;
         }
     }
-}
+}*/
 
-/*
+
 namespace ChessChallenge.Example
 {
 
@@ -1234,4 +1234,4 @@ namespace ChessChallenge.Example
             }
         }
     }
-}*/
+}
